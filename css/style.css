@@ -32,6 +32,11 @@ p {
   margin: 0;
 }
 
+marquee {
+  font-family: 'Noto Sans JP', sans-serif;
+  color:white;
+}
+
 a {
   color:inherit;
 }
