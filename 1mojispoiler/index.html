@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discord 1文字ずつスポイラー化ツール</title>
+  <style>
+    :root {
+      --bg-main: #313338;
+      --bg-card: #2b2d31;
+      --bg-input: #1e1f22;
+      --accent: #5865f2;
+      --accent-hover: #4752c4;
+      --success: #23a55a;
+      --text: #dbdee1;
+      --text-muted: #949ba4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px; /* 画面を広く使う */
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #fff;
+      margin-bottom: 12px;
+      letter-spacing: 0.05em;
+    }
+
+    .desc {
+      font-size: 1rem;
+      color: var(--text-muted);
+    }
+
+    .box-container {
+      background-color: var(--bg-card);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .label {
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    textarea {
+      width: 100%;
+      height: 200px; /* テキストエリアを大きく */
+      background-color: var(--bg-input);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      color: var(--text);
+      padding: 16px;
+      font-size: 1.1rem;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+    }
+
+    .output-box {
+      width: 100%;
+      height: 200px; /* プレビューエリアも大きく */
+      background-color: var(--bg-input);
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 1.1rem;
+      word-break: break-all;
+      overflow-y: auto;
+      color: var(--text-muted);
+      white-space: pre-wrap; /* ★ここで改行を画面に反映させる */
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 16px 32px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      color: #fff;
+      flex: 1;
+      max-width: 400px;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background-color: #4e5058;
+      color: #fff;
+      width: 120px;
+    }
+
+    .btn-secondary:hover {
+      background-color: #6d6f78;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--success);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    .footer {
+      margin-top: auto;
+      padding-top: 40px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .footer span {
+      background: linear-gradient(90deg, #5865f2, #a155fb);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>Discord一文字ずつスポイラー化</h1>
+      <p class="desc">入力したテキストを1文字ずつ||で挟んで「ネタバレ」にします。できたテキストをDiscordに貼り付けると連打するとなんか楽しいやつが出来ます（？）</p>
+    </div>
+
+    <div class="box-container">
+      <div class="input-group">
+        <label class="label" for="inputText">変換元のテキスト</label>
+        <textarea id="inputText" placeholder="ここに入力すると、下にプレビューが表示されます..."></textarea>
+      </div>
+
+      <div class="input-group">
+        <label class="label">変換結果（プレビュー）</label>
+        <div id="outputText" class="output-box">||こ||||こ||||に||||結||||果||||が||||表||||示||||さ||||れ||||ま||||す||</div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-primary" onclick="copyResult()">コピーする</button>
+        <button class="btn-secondary" onclick="clearText()">クリア</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- トースト通知 -->
+  <div id="toast" class="toast">クリップボードにコピーしました！</div>
+
+  <!-- AI作成のクレジット -->
+  <div class="footer">
+    このツールはAI（<span>Gemini</span>）によって作成されました。また、このツールはDiscord公式とは一切関係ありません。
+  </div>
+
+  <script>
+    const inputText = document.getElementById('inputText');
+    const outputText = document.getElementById('outputText');
+    const toast = document.getElementById('toast');
+    let toastTimeout;
+	const segmenter = new Intl.Segmenter('ja', {
+		granularity: 'grapheme'
+	});
+
+	function convert(str) {
+		if (!str) return '';
+
+		return [...segmenter.segment(str)].map(({ segment }) => {
+			if (segment === '\n' || segment === '\r') return segment;
+			return `||${segment}||`;
+		}).join('');
+	}
+
+    function updateOutput() {
+      const converted = convert(inputText.value);
+      outputText.textContent = converted || '||こ||||こ||||に||||結||||果||||が||||表||||示||||さ||||れ||||ま||||す||';
+    }
+
+    // 入力があるたびにプレビューを更新
+    inputText.addEventListener('input', updateOutput);
+
+    async function copyResult() {
+      const converted = convert(inputText.value);
+      if (!converted) return;
+
+      try {
+        await navigator.clipboard.writeText(converted);
+        showToast();
+      } catch (err) {
+        alert('コピーに失敗しました。手動で選択してコピーしてください。');
+      }
+    }
+
+    function clearText() {
+      inputText.value = '';
+      updateOutput();
+    }
+
+    function showToast() {
+      clearTimeout(toastTimeout);
+      toast.classList.add('show');
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
