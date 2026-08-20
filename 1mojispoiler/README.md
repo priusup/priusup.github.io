@@ -2,7 +2,7 @@
 
 入力したテキストを1文字ずつ||で挟んで「ネタバレ」にします。できたテキストをDiscordに貼り付けると連打するとなんか楽しいやつが出来ます（？）
 
-<a href="https://priusup.github.io/1mojispoiler/" target="_blank" rel="noopener noreferrer">**オンラインで使う（GitHub Pagesが開きます）**</a>
+**[👉 オンラインで使う（GitHub Pagesが開きます）](https://priusup.github.io/1mojispoiler/)**
 
 ※このツールはAI（Gemini）によって作成されました。また、このツールはDiscord公式とは一切関係ありません。
 
